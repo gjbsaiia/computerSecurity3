@@ -1,0 +1,53 @@
+ALGORITHM TO GET SERIAL FOR SPECIFIC STRING:
+
+--> Set breakpoint at 00401243 to catch your name mapped in the EAX register, 
+        then copy that out and run it back through as the serial, and your
+        actual serial is stored in the EBX register.
+
+--> My Name: Griffin
+--> Serial: 17993
+
+        Test Names:
+
+        Caps or not doesn't matter :)
+
+        --> Test1: shifu
+        --> Serial: 17715
+
+        --> Test2: yujie
+        --> Serial: 17866
+
+        --> Test3: yiming
+        --> Serial: 17793
+
+ASM WE ANALYZED:
+
+LOOP 0040137E:
+
+--> 00401385  |. 84C0           |TEST AL,AL
+--> 00401387  |. 74 13          |JE SHORT CRACKME.0040139C // if NULL
+
+        --> 0040139C  |> 5E             POP ESI
+        --> First Loop:
+
+                004013C2  /$ 33FF           XOR EDI,EDI
+                004013C4  |. 33DB           XOR EBX,EBX
+                004013C6  |> 8A1E           /MOV BL,BYTE PTR DS:[ESI]
+                004013C8  |. 84DB           |TEST BL,BL
+                004013CA  |. 74 05          |JE SHORT CRACKME.004013D1 // Return, if NULL
+                004013CC  |. 03FB           |ADD EDI,EBX 
+                004013CE  |. 46             |INC ESI
+                004013CF  |.^EB F5          \JMP SHORT CRACKME.004013C6
+                004013D1  \> C3             RETN
+
+--> 00401389  |. 3C 41          |CMP AL,41
+        --> 004013AC  |> 5E             POP ESI
+        --> 004013AD  |. 6A 30          PUSH 30
+        --> "NO LUCK"
+
+--> 0040138D  |. 3C 5A          |CMP AL,5A // 5A = Z
+        --> JUMP IF BELOW
+        --> 00401394  |> E8 39000000    |CALL CRACKME.004013D2
+        --> 004013D2  /$ 2C 20          SUB AL,20
+        --> 004013D4  |. 8806           MOV BYTE PTR DS:[ESI],AL
+        --> 004013D6  \. C3             RETN
